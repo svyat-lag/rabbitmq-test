@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: producer
+
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: guest
+    password: guest
+    connection-timeout: 5000
+
+app:
+  rabbit:
+    exchange: task.exchange
+    routing-key: task.routing.key
+    queue: task.queue

@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: consumer
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: guest
+    password: guest
+    connection-timeout: 5000
+    listener:
+      simple:
+        retry:
+          enabled: true
+          initial-interval: 2000
+          max-attempts: 5
+
+logging:
+  level:
+    root: WARN              # подавить всё остальное
+    org.example.consumer: INFO  # твои классы — INFO
+
+app:
+  rabbit:
+    input-queue: task.queue
+    output-exchange: task.response.exchange
+    output-routing-key: task.response.routing.key
+    output-queue: task.completed.queue

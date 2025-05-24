@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672" # UI доступен на localhost:15672
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  producer:
+    build:
+      context: ./producer
+    restart: always
+    depends_on:
+      - rabbitmq
+    environment:
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - LOGGING_FILE_NAME=/app/logs/producer.log
+    volumes:
+      - ./logs/producer:/app/logs
+    ports:
+      - "8080:8080" # REST API
+
+  consumer:
+    build:
+      context: ./consumer
+    restart: always
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - LOGGING_FILE_NAME=/app/logs/consumer.log
+    volumes:
+      - ./logs/consumer:/app/logs
+    command: [ "sh", "-c", "sleep 10 && java -jar app.jar" ]
+
